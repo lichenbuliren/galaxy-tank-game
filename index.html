@@ -300,7 +300,9 @@ function resetGame() {
   difficulty = 1;
   frameCount = 0;
   lastSpawnEnemy = 0;
-  player.x = W / 2;
+  // 统一用 screen.width 作为坐标参考系，避免和触摸坐标不一致
+  const screenW = window.screen.width || window.innerWidth;
+  player.x = screenW / 2;
   player.y = H * PLAYER_Y_RATIO;
   player.lastShot = 0;
   player.shield.active = false;
