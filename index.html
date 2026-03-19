@@ -263,6 +263,7 @@ let difficulty = 1;
 
 // ─── 输入状态 ─────────────────────────────────────────────
 let touchX = null;     // 当前触摸/鼠标 X 坐标
+let touchY = null;     // 当前触摸/鼠标 Y 坐标
 let isTouching = false; // 是否正在触摸
 
 // ─── 玩家 ────────────────────────────────────────────────
@@ -321,8 +322,8 @@ function resetGame() {
   particles = [];
   buffItems = [];
   touchX = null;
+  touchY = null;
   isTouching = false;
-  playerTargetX = null;
   updateUI();
 }
 
@@ -459,16 +460,21 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  // touchX 有值就驱动移动，不管 isTouching
+  // touchX/touchY 有值就驱动移动，不管 isTouching
   const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
   if (touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
     player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
+  if (touchY !== null && !isNaN(touchY) && !isNaN(player.y)) {
+    const diff = touchY - player.y;
+    player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+  }
   if (isNaN(player.x) || player.x < 0 || player.x > screenW) player.x = screenW / 2;
+  if (isNaN(player.y) || player.y < 0 || player.y > screenH) player.y = screenH * PLAYER_Y_RATIO;
   player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
-  // 玩家 Y 固定
-  player.y = H * PLAYER_Y_RATIO;
+  player.y = Math.max(player.h/2, Math.min(screenH - player.h/2, player.y));
 
   // 自动射击
   playerShoot();
@@ -837,10 +843,12 @@ canvas.addEventListener('mousedown', e => {
   if (gameState !== 'playing') return;
   isTouching = true;
   touchX = e.clientX;
+  touchY = e.clientY;
 });
 canvas.addEventListener('mousemove', e => {
   if (!isTouching || gameState !== 'playing') return;
   touchX = e.clientX;
+  touchY = e.clientY;
 });
 canvas.addEventListener('mouseup', () => { isTouching = false; });
 canvas.addEventListener('mouseleave', () => { isTouching = false; });
@@ -850,17 +858,22 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 canvas.addEventListener('touchstart', e => {
   if (gameState !== 'playing') return; // start 状态时不响应触摸，让按钮能点到
   const rawX = e.touches[0].clientX;
+  const rawY = e.touches[0].clientY;
   isTouching = true;
   touchX = rawX;
+  touchY = rawY;
   document.getElementById('debug-info').textContent = `TS playerX=${Math.round(player.x)} touchX=${Math.round(rawX)} isT=${isTouching}`;
 });
 
 canvas.addEventListener('touchmove', e => {
   if (gameState !== 'playing') return;
+  e.preventDefault(); // 阻止浏览器默认触摸行为（滚动/缩放），确保游戏能收到 touchmove
   const rawX = e.touches[0].clientX;
+  const rawY = e.touches[0].clientY;
   touchX = rawX;
-  document.getElementById('debug-info').textContent = `TM playerX=${Math.round(player.x)} touchX=${Math.round(rawX)}`;
-});
+  touchY = rawY;
+  document.getElementById('debug-info').textContent = `TM playerX=${Math.round(player.x)} touchY=${Math.round(rawY)}`;
+}, { passive: false });
 
 function startGame() {
   initAudio();
