@@ -463,17 +463,21 @@ function update(dt) {
   const screenW = window.innerWidth || 400;
   const screenH = window.innerHeight || 600;
 
+  // dt 安全检查
+  const safeDt = (dt > 0 && isFinite(dt)) ? dt : 16;
+
   // 直接用 touchX/touchY 差值移动
-  if (touchX !== null && isFinite(touchX)) {
+  // 注意：isFinite(null) 返回 true，需要先判断 != null
+  if (touchX != null && isFinite(touchX)) {
     const diff = touchX - player.x;
     if (isFinite(diff)) {
-      player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+      player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (safeDt / 16));
     }
   }
-  if (touchY !== null && isFinite(touchY)) {
+  if (touchY != null && isFinite(touchY)) {
     const diff = touchY - player.y;
     if (isFinite(diff)) {
-      player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+      player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (safeDt / 16));
     }
   }
 
