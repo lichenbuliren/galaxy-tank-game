@@ -798,8 +798,9 @@ function gameLoop(ts) {
     draw();
     updateUI();
     // 调试信息
+    const t = isTouching ? (isNaN(touchX) ? 'NaN!' : Math.round(touchX)) : '-';
     document.getElementById('debug-info').textContent =
-      ` x:${Math.round(player.x)} y:${Math.round(player.y)} t:${isTouching} st:${gameState}`;
+      ` x:${Math.round(player.x)} y:${Math.round(player.y)} tX:${t} t:${isTouching}`;
   } else if (gameState === 'start') {
     // 绘制静态背景
     ctx.fillStyle = '#050510';
@@ -834,16 +835,18 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseup', () => { isTouching = false; });
 canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
-// 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action: none）
+// 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action:none）
 canvas.addEventListener('touchstart', e => {
   if (gameState !== 'playing') return;
   isTouching = true;
-  touchX = e.touches[0].clientX;
+  const rawX = e.touches[0].clientX;
+  touchX = isNaN(rawX) ? touchX : rawX;
 });
 
 canvas.addEventListener('touchmove', e => {
   if (!isTouching || gameState !== 'playing') return;
-  touchX = e.touches[0].clientX;
+  const rawX = e.touches[0].clientX;
+  touchX = isNaN(rawX) ? touchX : rawX;
 });
 
 canvas.addEventListener('touchend', () => {
