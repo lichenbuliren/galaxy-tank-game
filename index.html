@@ -19,6 +19,9 @@
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
   }
   #ui-overlay {
     position: absolute;
@@ -116,7 +119,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-3</div>
+  <div id="version-display">v20260319-4</div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -805,31 +808,43 @@ function gameLoop(ts) {
   requestAnimationFrame(gameLoop);
 }
 
-// ─── 触摸/指针控制 ───────────────────────────────────────
-// 使用 Pointer Events API（统一处理鼠标和触摸，兼容性更好）
-canvas.style.touchAction = 'none'; // 禁用浏览器默认触摸行为
+// ─── 触摸控制 ─────────────────────────────────────────────
+// 使用 touch 事件 + 简单直接的坐标追踪
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (gameState !== 'playing') return;
+  isTouching = true;
+  touchX = e.touches[0].clientX;
+}, { passive: false });
 
-canvas.addEventListener('pointerdown', e => {
-  canvas.setPointerCapture(e.pointerId);
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!isTouching || gameState !== 'playing') return;
+  touchX = e.touches[0].clientX;
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  // 保持 touchX 不变，玩家停在最后位置，不清空
+  isTouching = false;
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', e => {
+  isTouching = false;
+}, { passive: false });
+
+// 桌面鼠标
+canvas.addEventListener('mousedown', e => {
   if (gameState !== 'playing') return;
   isTouching = true;
   touchX = e.clientX;
 });
-
-canvas.addEventListener('pointermove', e => {
-  if (!isTouching || gameState !== 'playing') return;
+canvas.addEventListener('mousemove', e => {
+  if (!isTouching) return;
   touchX = e.clientX;
 });
-
-canvas.addEventListener('pointerup', e => {
-  canvas.releasePointerCapture(e.pointerId);
-  isTouching = false;
-});
-
-canvas.addEventListener('pointercancel', e => {
-  canvas.releasePointerCapture(e.pointerId);
-  isTouching = false;
-});
+canvas.addEventListener('mouseup', () => { isTouching = false; });
+canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
