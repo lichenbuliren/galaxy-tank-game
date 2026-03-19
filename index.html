@@ -119,7 +119,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-6</div>
+  <div id="version-display">v20260319-7 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -791,6 +791,9 @@ function gameLoop(ts) {
     update(dt);
     draw();
     updateUI();
+    // 调试信息
+    document.getElementById('debug-info').textContent =
+      ` x:${Math.round(player.x)} y:${Math.round(player.y)} t:${isTouching} st:${gameState}`;
   } else if (gameState === 'start') {
     // 绘制静态背景
     ctx.fillStyle = '#050510';
