@@ -301,7 +301,7 @@ function resetGame() {
   frameCount = 0;
   lastSpawnEnemy = 0;
   // 统一用 screen.width 作为坐标参考系，避免和触摸坐标不一致
-  const screenW = window.screen.width || window.innerWidth;
+  const screenW = window.innerWidth;
   player.x = screenW / 2;
   player.y = H * PLAYER_Y_RATIO;
   player.lastShot = 0;
@@ -453,7 +453,7 @@ function update(dt) {
 
   // 玩家移动（触摸控制）
   // 使用 screenW 保证和触摸坐标（screen.width 参考系）一致
-  const screenW = window.screen.width || window.innerWidth;
+  const screenW = window.innerWidth;
   if (isTouching && touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
     if (Math.abs(diff) > 2) {
@@ -847,7 +847,7 @@ canvas.addEventListener('touchstart', e => {
   if (!e.touches || e.touches.length === 0) return;
   isTouching = true;
   const rawX = e.touches[0].clientX;
-  const screenW = window.screen.width || window.innerWidth;
+  const screenW = window.innerWidth;
   // screen.width 是设备像素分辨率，比 innerWidth 更可靠
   if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= screenW) {
     touchX = rawX;
