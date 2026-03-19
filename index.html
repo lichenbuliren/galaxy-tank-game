@@ -125,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-11 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-12 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -853,7 +853,7 @@ window.addEventListener('touchstart', e => {
 
 canvas.addEventListener('touchstart', e => {
   const rawX = e.touches[0].clientX;
-  document.getElementById('debug-info').textContent = `TS! gameState=${gameState} clientX=${Math.round(rawX)} canvasSize=${W}x${H}`;
+  document.getElementById('debug-info').textContent = `game=${gameState} W=${W} H=${H} playerX=${Math.round(player.x)} playerY=${Math.round(player.y)} touchX=${Math.round(rawX)}`;
   e.preventDefault();
   if (gameState !== 'playing') return;
   if (!e.touches || e.touches.length === 0) return;
