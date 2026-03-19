@@ -80,6 +80,7 @@
     background: rgba(0,0,0,0.85);
     z-index: 200;
     pointer-events: auto;
+    pointer-events: auto;
   }
   #gameover-screen { display: none; }
   .screen-title {
@@ -125,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-17 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-18 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -847,6 +848,7 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 // 移动端触摸控制
 // 统一用 touchX 追踪：touchX 有值就移动，无值就停止
 canvas.addEventListener('touchstart', e => {
+  if (gameState !== 'playing') return; // start 状态时不响应触摸，让按钮能点到
   const rawX = e.touches[0].clientX;
   isTouching = true;
   touchX = rawX;
