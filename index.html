@@ -133,6 +133,8 @@ let audioCtx = null;
 let masterGain = null;
 let bgmOsc = null;
 let bgmGain = null;
+let lastHitTime = 0;
+let lastShootTime = 0;
 
 function initAudio() {
   if (audioCtx) return;
@@ -145,6 +147,9 @@ function initAudio() {
 
 function playNote(freq, dur, type = 'square', vol = 0.15, delay = 0) {
   if (!audioCtx) return;
+  const now = Date.now();
+  if (now - lastHitTime < 20) return; // 防止移动端音频过载
+  lastHitTime = now;
   const osc = audioCtx.createOscillator();
   const g = audioCtx.createGain();
   osc.type = type;
@@ -157,7 +162,7 @@ function playNote(freq, dur, type = 'square', vol = 0.15, delay = 0) {
   osc.stop(audioCtx.currentTime + delay + dur + 0.05);
 }
 
-function playShoot() { playNote(880, 0.05, 'square', 0.08); }
+function playShoot() { if (Date.now() - lastShootTime < 30) return; lastShootTime = Date.now(); playNote(880, 0.05, 'square', 0.08); }
 function playHit()   { playNote(220, 0.1, 'sawtooth', 0.2); }
 function playBuff()  {
   playNote(523, 0.1, 'sine', 0.25);
@@ -310,6 +315,7 @@ const ENEMY_TYPES = [
 ];
 
 function spawnEnemy() {
+  if (enemies.length >= 15) return; // 敌机数量上限
   const r = Math.random();
   let def;
   if (r < 0.10)       def = ENEMY_TYPES[3]; // big tank 10%
@@ -337,6 +343,7 @@ function spawnEnemy() {
 
 // ─── 粒子效果 ─────────────────────────────────────────────
 function spawnExplosion(x, y, color, count = 12) {
+  if (particles.length > 200) return; // 粒子数量上限，防止性能问题
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2;
     const spd = 1 + Math.random() * 3;
@@ -404,6 +411,7 @@ function playerShoot() {
   const rate = player.speed.active ? player.shootRate * 0.5 : player.shootRate;
   if (now - player.lastShot < rate) return;
   player.lastShot = now;
+  if (playerBullets.length >= 30) return; // 子弹数量上限
 
   const bulletSpeed = player.speed.active ? 14 : 9;
   if (player.spread.active) {
