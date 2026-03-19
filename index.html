@@ -133,8 +133,6 @@ let audioCtx = null;
 let masterGain = null;
 let bgmOsc = null;
 let bgmGain = null;
-let lastHitTime = 0;
-let lastShootTime = 0;
 
 function initAudio() {
   if (audioCtx) return;
@@ -146,11 +144,7 @@ function initAudio() {
 }
 
 function playNote(freq, dur, type = 'square', vol = 0.15, delay = 0) {
-  return; // 临时禁用所有音效以诊断卡死问题
   if (!audioCtx) return;
-  const now = Date.now();
-  if (now - lastHitTime < 20) return; // 防止移动端音频过载
-  lastHitTime = now;
   const osc = audioCtx.createOscillator();
   const g = audioCtx.createGain();
   osc.type = type;
@@ -163,7 +157,7 @@ function playNote(freq, dur, type = 'square', vol = 0.15, delay = 0) {
   osc.stop(audioCtx.currentTime + delay + dur + 0.05);
 }
 
-function playShoot() { if (Date.now() - lastShootTime < 30) return; lastShootTime = Date.now(); playNote(880, 0.05, 'square', 0.08); }
+function playShoot() { playNote(880, 0.05, 'square', 0.08); }
 function playHit()   { playNote(220, 0.1, 'sawtooth', 0.2); }
 function playBuff()  {
   playNote(523, 0.1, 'sine', 0.25);
@@ -782,9 +776,9 @@ function gameLoop(ts) {
   lastTime = ts;
 
   if (gameState === 'playing') {
-    try { update(dt); } catch(e) { console.error('update error:', e); }
-    try { draw(); } catch(e) { console.error('draw error:', e); }
-    try { updateUI(); } catch(e) {}
+    update(dt);
+    draw();
+    updateUI();
   } else if (gameState === 'start') {
     // 绘制静态背景
     ctx.fillStyle = '#050510';
@@ -802,44 +796,31 @@ function gameLoop(ts) {
   requestAnimationFrame(gameLoop);
 }
 
-// ─── 触摸控制 ─────────────────────────────────────────────
-// 统一处理：阻止浏览器默认触摸行为（滚动/缩放）
-function onTouchStart(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  if (gameState !== 'playing') return;
-  isTouching = true;
-  touchX = e.touches[0].clientX;
-}
-function onTouchMove(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  if (gameState !== 'playing') return;
-  touchX = e.touches[0].clientX;
-}
-function onTouchEnd(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  // 保持 touchX 不变，玩家停在最后位置
-  isTouching = false;
-}
+// ─── 触摸/指针控制 ───────────────────────────────────────
+// 使用 Pointer Events API（统一处理鼠标和触摸，兼容性更好）
+canvas.style.touchAction = 'none'; // 禁用浏览器默认触摸行为
 
-canvas.addEventListener('touchstart',  onTouchStart,  { passive: false });
-canvas.addEventListener('touchmove',   onTouchMove,   { passive: false });
-canvas.addEventListener('touchend',    onTouchEnd,    { passive: false });
-canvas.addEventListener('touchcancel', onTouchEnd,    { passive: false });
-
-// 鼠标支持（桌面调试）
-canvas.addEventListener('mousemove', e => {
-  if (isTouching) touchX = e.clientX;
-});
-canvas.addEventListener('mousedown', e => {
+canvas.addEventListener('pointerdown', e => {
+  canvas.setPointerCapture(e.pointerId);
   if (gameState !== 'playing') return;
   isTouching = true;
   touchX = e.clientX;
 });
-canvas.addEventListener('mouseup', () => { isTouching = false; });
-canvas.addEventListener('mouseleave', () => { isTouching = false; });
+
+canvas.addEventListener('pointermove', e => {
+  if (!isTouching || gameState !== 'playing') return;
+  touchX = e.clientX;
+});
+
+canvas.addEventListener('pointerup', e => {
+  canvas.releasePointerCapture(e.pointerId);
+  isTouching = false;
+});
+
+canvas.addEventListener('pointercancel', e => {
+  canvas.releasePointerCapture(e.pointerId);
+  isTouching = false;
+});
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
