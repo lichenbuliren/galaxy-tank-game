@@ -126,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260320-3 <span id="debug-info"></span></div>
+  <div id="version-display">v20260320-4 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -460,27 +460,25 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  // touchX/touchY 有值就驱动移动，不管 isTouching
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
-  // Debug: 检查移动条件
-  const canMoveX = touchX !== null && !isNaN(touchX) && !isNaN(player.x);
-  const canMoveY = touchY !== null && !isNaN(touchY) && !isNaN(player.y);
-  if (canMoveX) {
+
+  // 直接用 touchX/touchY 差值移动，不检查 canMove 条件
+  if (touchX !== null) {
     const diff = touchX - player.x;
     player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
-  if (canMoveY) {
+  if (touchY !== null) {
     const diff = touchY - player.y;
     player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
-  if (isNaN(player.x) || player.x < 0 || player.x > screenW) player.x = screenW / 2;
-  if (isNaN(player.y) || player.y < 0 || player.y > screenH) player.y = screenH * PLAYER_Y_RATIO;
+
   player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
   player.y = Math.max(player.h/2, Math.min(screenH - player.h/2, player.y));
-  // Debug: 显示移动条件状态
+
+  // Debug
   document.getElementById('debug-info').textContent =
-    `px=${Math.round(player.x)} py=${Math.round(player.y)} tX=${touchX!=null?Math.round(touchX):'null'} tY=${touchY!=null?Math.round(touchY):'null'} canX=${canMoveX} canY=${canMoveY}`;
+    `game=${gameState} px=${Math.round(player.x)} py=${Math.round(player.y)} tX=${touchX!=null?Math.round(touchX):'null'} tY=${touchY!=null?Math.round(touchY):'null'}`;
 
   // 自动射击
   playerShoot();
