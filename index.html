@@ -837,11 +837,12 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
 // 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action:none）
 canvas.addEventListener('touchstart', e => {
+  const t = isTouching ? (isNaN(touchX) ? 'NaN!' : Math.round(touchX)) : '-';
+  document.getElementById('debug-info').textContent = `TS x:${Math.round(player.x)} tX:${t} st:${gameState} touches:${e.touches.length}`;
   if (gameState !== 'playing') return;
-  if (!e.touches || e.touches.length === 0) return; // 防止无效触摸
+  if (!e.touches || e.touches.length === 0) return;
   isTouching = true;
   const rawX = e.touches[0].clientX;
-  // 确保坐标有效且在合理范围内
   if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= 10000) {
     touchX = rawX;
   }
