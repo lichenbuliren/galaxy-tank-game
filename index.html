@@ -125,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-16 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-17 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -458,15 +458,12 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  // 直接用 touchX 是否有效来判断是否在触摸，不再依赖 isTouching
+  // touchX 有值就驱动移动，不管 isTouching
   const screenW = window.innerWidth;
   if (touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
-    if (Math.abs(diff) > 1) {
-      player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
-    }
+    player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
-  // 防止 NaN 和越界
   if (isNaN(player.x) || player.x < 0 || player.x > screenW) player.x = screenW / 2;
   player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
   // 玩家 Y 固定
@@ -851,9 +848,9 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 // 统一用 touchX 追踪：touchX 有值就移动，无值就停止
 canvas.addEventListener('touchstart', e => {
   const rawX = e.touches[0].clientX;
-  document.getElementById('debug-info').textContent = `TS playerX=${Math.round(player.x)} touchX=${Math.round(rawX)}`;
-  if (gameState !== 'playing') return;
+  isTouching = true;
   touchX = rawX;
+  document.getElementById('debug-info').textContent = `TS playerX=${Math.round(player.x)} touchX=${Math.round(rawX)} isT=${isTouching}`;
 });
 
 canvas.addEventListener('touchmove', e => {
@@ -868,17 +865,6 @@ canvas.addEventListener('touchend', e => {
   // 不清空 touchX，让玩家停在最后位置
 });
 
-canvas.addEventListener('touchcancel', () => {
-  // 不清空 touchX
-});
-
-// ─── 开始/重新开始 ────────────────────────────────────────
-function startGame() {
-  console.log('startGame called! gameState was:', gameState);
-  document.getElementById('debug-info').textContent = 'STARTING...';
-  initAudio();
-  resetGame();
-  gameState = 'playing';
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('gameover-screen').style.display = 'none';
   lastTime = performance.now();
