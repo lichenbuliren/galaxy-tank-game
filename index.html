@@ -78,7 +78,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.85);
-    z-index: 20;
+    z-index: 200;
     pointer-events: auto;
   }
   #gameover-screen { display: none; }
@@ -125,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-13 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-14 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -885,6 +885,8 @@ canvas.addEventListener('touchcancel', () => {
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
+  console.log('startGame called! gameState was:', gameState);
+  document.getElementById('debug-info').textContent = 'STARTING...';
   initAudio();
   resetGame();
   gameState = 'playing';
