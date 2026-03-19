@@ -146,6 +146,7 @@ function initAudio() {
 }
 
 function playNote(freq, dur, type = 'square', vol = 0.15, delay = 0) {
+  return; // 临时禁用所有音效以诊断卡死问题
   if (!audioCtx) return;
   const now = Date.now();
   if (now - lastHitTime < 20) return; // 防止移动端音频过载
@@ -781,9 +782,9 @@ function gameLoop(ts) {
   lastTime = ts;
 
   if (gameState === 'playing') {
-    update(dt);
-    draw();
-    updateUI();
+    try { update(dt); } catch(e) { console.error('update error:', e); }
+    try { draw(); } catch(e) { console.error('draw error:', e); }
+    try { updateUI(); } catch(e) {}
   } else if (gameState === 'start') {
     // 绘制静态背景
     ctx.fillStyle = '#050510';
