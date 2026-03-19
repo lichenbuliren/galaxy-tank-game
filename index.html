@@ -794,32 +794,43 @@ function gameLoop(ts) {
 }
 
 // ─── 触摸控制 ─────────────────────────────────────────────
-canvas.addEventListener('touchstart', e => {
+// 统一处理：阻止浏览器默认触摸行为（滚动/缩放）
+function onTouchStart(e) {
   e.preventDefault();
+  e.stopPropagation();
+  if (gameState !== 'playing') return;
   isTouching = true;
   touchX = e.touches[0].clientX;
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
+}
+function onTouchMove(e) {
   e.preventDefault();
+  e.stopPropagation();
+  if (gameState !== 'playing') return;
   touchX = e.touches[0].clientX;
-}, { passive: false });
-
-canvas.addEventListener('touchend', e => {
+}
+function onTouchEnd(e) {
   e.preventDefault();
-  // 不清空 touchX，保持最后位置，避免闪烁
+  e.stopPropagation();
+  // 保持 touchX 不变，玩家停在最后位置
   isTouching = false;
-}, { passive: false });
+}
+
+canvas.addEventListener('touchstart',  onTouchStart,  { passive: false });
+canvas.addEventListener('touchmove',   onTouchMove,   { passive: false });
+canvas.addEventListener('touchend',    onTouchEnd,    { passive: false });
+canvas.addEventListener('touchcancel', onTouchEnd,    { passive: false });
 
 // 鼠标支持（桌面调试）
 canvas.addEventListener('mousemove', e => {
-  if (isTouching || gameState === 'playing') touchX = e.clientX;
+  if (isTouching) touchX = e.clientX;
 });
 canvas.addEventListener('mousedown', e => {
+  if (gameState !== 'playing') return;
   isTouching = true;
   touchX = e.clientX;
 });
 canvas.addEventListener('mouseup', () => { isTouching = false; });
+canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
