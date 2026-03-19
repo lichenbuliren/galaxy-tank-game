@@ -126,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260320-5 <span id="debug-info"></span></div>
+  <div id="version-display">v20260320-6 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -460,17 +460,21 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  const screenW = window.innerWidth;
-  const screenH = window.innerHeight;
+  const screenW = window.innerWidth || 400;
+  const screenH = window.innerHeight || 600;
 
-  // 直接用 touchX/touchY 差值移动，不检查 canMove 条件
-  if (touchX !== null) {
+  // 直接用 touchX/touchY 差值移动
+  if (touchX !== null && isFinite(touchX)) {
     const diff = touchX - player.x;
-    player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+    if (isFinite(diff)) {
+      player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+    }
   }
-  if (touchY !== null) {
+  if (touchY !== null && isFinite(touchY)) {
     const diff = touchY - player.y;
-    player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+    if (isFinite(diff)) {
+      player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
+    }
   }
 
   player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
@@ -478,7 +482,7 @@ function update(dt) {
 
   // Debug: 加 frameCount 确认 update 每帧执行
   document.getElementById('debug-info').textContent =
-    `fc=${frameCount} game=${gameState} px=${Math.round(player.x)} py=${Math.round(player.y)} tX=${touchX!=null?Math.round(touchX):'null'} tY=${touchY!=null?Math.round(touchY):'null'} diffX=${touchX!=null?Math.round(touchX - player.x):'null'}`;
+    `fc=${frameCount} px=${Math.round(player.x)||'NaN'} py=${Math.round(player.y)||'NaN'} tX=${touchX!=null&&isFinite(touchX)?Math.round(touchX):'null'} tY=${touchY!=null&&isFinite(touchY)?Math.round(touchY):'null'}`;
 
   // 自动射击
   playerShoot();
