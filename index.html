@@ -125,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-14 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-15 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -458,11 +458,11 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  // 使用 screenW 保证和触摸坐标（screen.width 参考系）一致
+  // 直接用 touchX 是否有效来判断是否在触摸，不再依赖 isTouching
   const screenW = window.innerWidth;
-  if (isTouching && touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
+  if (touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
-    if (Math.abs(diff) > 2) {
+    if (Math.abs(diff) > 1) {
       player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
     }
   }
