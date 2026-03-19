@@ -224,8 +224,12 @@ function scheduleBGM() {
 // ─── 画布适配 ─────────────────────────────────────────────
 let W, H;
 function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+  const newW = window.innerWidth;
+  const newH = window.innerHeight;
+  // 防止浏览器返回无效尺寸导致 NaN
+  if (!newW || !newH || isNaN(newW) || isNaN(newH)) return;
+  W = canvas.width  = newW;
+  H = canvas.height = newH;
 }
 window.addEventListener('resize', resize);
 resize();
@@ -446,12 +450,14 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  if (isTouching && touchX !== null) {
+  if (isTouching && touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
     if (Math.abs(diff) > 2) {
       player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
     }
   }
+  // 防止 NaN
+  if (isNaN(player.x)) player.x = W / 2;
   player.x = Math.max(player.w/2, Math.min(W - player.w/2, player.x));
   // 玩家 Y 固定
   player.y = H * PLAYER_Y_RATIO;
