@@ -862,15 +862,19 @@ canvas.addEventListener('touchmove', e => {
   document.getElementById('debug-info').textContent = `TM playerX=${Math.round(player.x)} touchX=${Math.round(rawX)}`;
 });
 
+function startGame() {
+  initAudio();
+  gameState = 'playing';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('gameover-screen').style.display = 'none';
+  resetGame();
+  lastTime = performance.now();
+}
+
 canvas.addEventListener('touchend', e => {
   e.preventDefault(); // 阻止误触
   // 不清空 touchX，让玩家停在最后位置
 });
-
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('gameover-screen').style.display = 'none';
-  lastTime = performance.now();
-}
 
 // 移动端也需要能点击按钮
 function addTouchHandler(id, fn) {
