@@ -251,8 +251,10 @@ let lastSpawnEnemy = 0;
 let difficulty = 1;
 
 // ─── 输入状态 ─────────────────────────────────────────────
-let touchX = null; // 触摸/鼠标 X 坐标
+let touchX = null;     // 当前触摸/鼠标 X 坐标
 let isTouching = false; // 是否正在触摸
+let touchStartX = null; // 触摸开始时的初始 X
+let lastTouchX = null;  // 上一次的触摸 X（用于计算 delta）
 
 // ─── 玩家 ────────────────────────────────────────────────
 const player = {
