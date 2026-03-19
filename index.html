@@ -126,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260320-2 <span id="debug-info"></span></div>
+  <div id="version-display">v20260320-3 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -817,9 +817,7 @@ function gameLoop(ts) {
     update(dt);
     draw();
     updateUI();
-    // 调试信息（游戏进行中）
-    document.getElementById('debug-info').textContent =
-      `playing x:${Math.round(player.x)} y:${Math.round(player.y)} tX:${isNaN(touchX)?'-':Math.round(touchX)} t:${isTouching} W:${W}`;
+    // debug info now set inside update()
   } else if (gameState === 'start') {
     // 调试信息（等待开始）
     document.getElementById('debug-info').textContent =
