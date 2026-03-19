@@ -126,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-20 <span id="debug-info"></span></div>
+  <div id="version-display">v20260320-1 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -856,23 +856,24 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 // 移动端触摸控制
 // 统一用 touchX 追踪：touchX 有值就移动，无值就停止
 canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); // 阻止浏览器默认触摸行为
   if (gameState !== 'playing') return; // start 状态时不响应触摸，让按钮能点到
   const rawX = e.touches[0].clientX;
   const rawY = e.touches[0].clientY;
   isTouching = true;
   touchX = rawX;
   touchY = rawY;
-  document.getElementById('debug-info').textContent = `TS playerX=${Math.round(player.x)} touchX=${Math.round(rawX)} isT=${isTouching}`;
-});
+  document.getElementById('debug-info').textContent = `TS px=${Math.round(player.x)} py=${Math.round(player.y)} tx=${Math.round(rawX)} ty=${Math.round(rawY)}`;
+}, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
+  e.preventDefault(); // 阻止浏览器默认触摸行为
   if (gameState !== 'playing') return;
-  e.preventDefault(); // 阻止浏览器默认触摸行为（滚动/缩放），确保游戏能收到 touchmove
   const rawX = e.touches[0].clientX;
   const rawY = e.touches[0].clientY;
   touchX = rawX;
   touchY = rawY;
-  document.getElementById('debug-info').textContent = `TM playerX=${Math.round(player.x)} touchY=${Math.round(rawY)}`;
+  document.getElementById('debug-info').textContent = `TM px=${Math.round(player.x)} py=${Math.round(player.y)} tx=${Math.round(rawX)} ty=${Math.round(rawY)}`;
 }, { passive: false });
 
 function startGame() {
