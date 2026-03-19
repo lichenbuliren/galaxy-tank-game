@@ -450,6 +450,8 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
+  // 使用 screenW 保证和触摸坐标（screen.width 参考系）一致
+  const screenW = window.screen.width || window.innerWidth;
   if (isTouching && touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
     const diff = touchX - player.x;
     if (Math.abs(diff) > 2) {
@@ -457,8 +459,8 @@ function update(dt) {
     }
   }
   // 防止 NaN 和越界
-  if (isNaN(player.x) || player.x < 0 || player.x > W) player.x = W / 2;
-  player.x = Math.max(player.w/2, Math.min(W - player.w/2, player.x));
+  if (isNaN(player.x) || player.x < 0 || player.x > screenW) player.x = screenW / 2;
+  player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
   // 玩家 Y 固定
   player.y = H * PLAYER_Y_RATIO;
 
@@ -843,7 +845,9 @@ canvas.addEventListener('touchstart', e => {
   if (!e.touches || e.touches.length === 0) return;
   isTouching = true;
   const rawX = e.touches[0].clientX;
-  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= 10000) {
+  const screenW = window.screen.width || window.innerWidth;
+  // screen.width 是设备像素分辨率，比 innerWidth 更可靠
+  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= screenW) {
     touchX = rawX;
   }
 });
