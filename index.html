@@ -125,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-15 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-16 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -847,40 +847,29 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseup', () => { isTouching = false; });
 canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
-// 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action:none）
-// 全局调试：监听所有触摸事件
-window.addEventListener('touchstart', e => {
-  document.getElementById('debug-info').textContent = `TW! target=${e.target.tagName} gameState=${gameState}`;
-}, { passive: true });
-
+// 移动端触摸控制
+// 统一用 touchX 追踪：touchX 有值就移动，无值就停止
 canvas.addEventListener('touchstart', e => {
   const rawX = e.touches[0].clientX;
-  document.getElementById('debug-info').textContent = `game=${gameState} W=${W} H=${H} playerX=${Math.round(player.x)} playerY=${Math.round(player.y)} touchX=${Math.round(rawX)}`;
-  e.preventDefault();
+  document.getElementById('debug-info').textContent = `TS playerX=${Math.round(player.x)} touchX=${Math.round(rawX)}`;
   if (gameState !== 'playing') return;
-  if (!e.touches || e.touches.length === 0) return;
-  isTouching = true;
   touchX = rawX;
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  if (!isTouching || gameState !== 'playing') return;
-  if (!e.touches || e.touches.length === 0) return; // 防止触摸结束时 touches 为空
-  const rawX = e.touches[0].clientX;
-  // 确保坐标有效且在合理范围内
-  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= 10000) {
-    touchX = rawX;
-  }
 });
 
-canvas.addEventListener('touchend', () => {
-  isTouching = false;
-  // touchX 保持不变，让玩家停在最后位置
+canvas.addEventListener('touchmove', e => {
+  if (gameState !== 'playing') return;
+  const rawX = e.touches[0].clientX;
+  touchX = rawX;
+  document.getElementById('debug-info').textContent = `TM playerX=${Math.round(player.x)} touchX=${Math.round(rawX)}`;
+});
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault(); // 阻止误触
+  // 不清空 touchX，让玩家停在最后位置
 });
 
 canvas.addEventListener('touchcancel', () => {
-  isTouching = false;
-  // touchX 保持不变
+  // 不清空 touchX
 });
 
 // ─── 开始/重新开始 ────────────────────────────────────────
