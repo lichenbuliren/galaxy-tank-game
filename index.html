@@ -119,7 +119,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-4</div>
+  <div id="version-display">v20260319-5</div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -809,42 +809,64 @@ function gameLoop(ts) {
 }
 
 // ─── 触摸控制 ─────────────────────────────────────────────
-// 使用 touch 事件 + 简单直接的坐标追踪
+// 方案：记录初始触摸 X，每帧根据当前触摸 X 计算 delta
+// 避免依赖每帧 touchmove 事件的坐标准确性
+
+let touchStartX = null;   // 触摸开始时的初始 X
+let lastTouchX = null;    // 上一次的触摸 X（用于计算 delta）
+
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  if (gameState !== 'playing') return;
+  const tx = e.touches[0].clientX;
+  touchStartX = tx;
+  lastTouchX = tx;
+  touchX = tx;
   isTouching = true;
-  touchX = e.touches[0].clientX;
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
-  if (!isTouching || gameState !== 'playing') return;
-  touchX = e.touches[0].clientX;
+  if (!isTouching) return;
+  const tx = e.touches[0].clientX;
+  lastTouchX = tx;
+  touchX = tx;
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
-  // 保持 touchX 不变，玩家停在最后位置，不清空
   isTouching = false;
+  touchStartX = null;
+  lastTouchX = null;
 }, { passive: false });
 
 canvas.addEventListener('touchcancel', e => {
   isTouching = false;
+  touchStartX = null;
+  lastTouchX = null;
 }, { passive: false });
 
 // 桌面鼠标
 canvas.addEventListener('mousedown', e => {
-  if (gameState !== 'playing') return;
-  isTouching = true;
+  touchStartX = e.clientX;
+  lastTouchX = e.clientX;
   touchX = e.clientX;
+  isTouching = true;
 });
 canvas.addEventListener('mousemove', e => {
   if (!isTouching) return;
+  lastTouchX = e.clientX;
   touchX = e.clientX;
 });
-canvas.addEventListener('mouseup', () => { isTouching = false; });
-canvas.addEventListener('mouseleave', () => { isTouching = false; });
+canvas.addEventListener('mouseup', () => {
+  isTouching = false;
+  touchStartX = null;
+  lastTouchX = null;
+});
+canvas.addEventListener('mouseleave', () => {
+  isTouching = false;
+  touchStartX = null;
+  lastTouchX = null;
+});
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
