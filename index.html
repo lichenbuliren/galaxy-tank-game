@@ -239,8 +239,8 @@ let lastSpawnEnemy = 0;
 let difficulty = 1;
 
 // ─── 输入状态 ─────────────────────────────────────────────
-let touchX = null; // null = 未触摸
-let playerTargetX = null;
+let touchX = null; // 触摸/鼠标 X 坐标
+let isTouching = false; // 是否正在触摸
 
 // ─── 玩家 ────────────────────────────────────────────────
 const player = {
@@ -296,6 +296,7 @@ function resetGame() {
   particles = [];
   buffItems = [];
   touchX = null;
+  isTouching = false;
   playerTargetX = null;
   updateUI();
 }
@@ -430,7 +431,7 @@ function update(dt) {
   }
 
   // 玩家移动（触摸控制）
-  if (touchX !== null) {
+  if (isTouching && touchX !== null) {
     const diff = touchX - player.x;
     if (Math.abs(diff) > 2) {
       player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
@@ -795,6 +796,7 @@ function gameLoop(ts) {
 // ─── 触摸控制 ─────────────────────────────────────────────
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
+  isTouching = true;
   touchX = e.touches[0].clientX;
 }, { passive: false });
 
@@ -805,17 +807,19 @@ canvas.addEventListener('touchmove', e => {
 
 canvas.addEventListener('touchend', e => {
   e.preventDefault();
-  touchX = null;
+  // 不清空 touchX，保持最后位置，避免闪烁
+  isTouching = false;
 }, { passive: false });
 
 // 鼠标支持（桌面调试）
 canvas.addEventListener('mousemove', e => {
-  if (gameState === 'playing') touchX = e.clientX;
+  if (isTouching || gameState === 'playing') touchX = e.clientX;
 });
 canvas.addEventListener('mousedown', e => {
-  if (gameState === 'playing') touchX = e.clientX;
+  isTouching = true;
+  touchX = e.clientX;
 });
-canvas.addEventListener('mouseup', () => { touchX = null; });
+canvas.addEventListener('mouseup', () => { isTouching = false; });
 
 // ─── 开始/重新开始 ────────────────────────────────────────
 function startGame() {
