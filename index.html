@@ -456,8 +456,8 @@ function update(dt) {
       player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
     }
   }
-  // 防止 NaN
-  if (isNaN(player.x)) player.x = W / 2;
+  // 防止 NaN 和越界
+  if (isNaN(player.x) || player.x < 0 || player.x > W) player.x = W / 2;
   player.x = Math.max(player.w/2, Math.min(W - player.w/2, player.x));
   // 玩家 Y 固定
   player.y = H * PLAYER_Y_RATIO;
@@ -838,23 +838,33 @@ canvas.addEventListener('mouseleave', () => { isTouching = false; });
 // 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action:none）
 canvas.addEventListener('touchstart', e => {
   if (gameState !== 'playing') return;
+  if (!e.touches || e.touches.length === 0) return; // 防止无效触摸
   isTouching = true;
   const rawX = e.touches[0].clientX;
-  touchX = isNaN(rawX) ? touchX : rawX;
+  // 确保坐标有效且在合理范围内
+  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= 10000) {
+    touchX = rawX;
+  }
 });
 
 canvas.addEventListener('touchmove', e => {
   if (!isTouching || gameState !== 'playing') return;
+  if (!e.touches || e.touches.length === 0) return; // 防止触摸结束时 touches 为空
   const rawX = e.touches[0].clientX;
-  touchX = isNaN(rawX) ? touchX : rawX;
+  // 确保坐标有效且在合理范围内
+  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0 && rawX <= 10000) {
+    touchX = rawX;
+  }
 });
 
 canvas.addEventListener('touchend', () => {
   isTouching = false;
+  // touchX 保持不变，让玩家停在最后位置
 });
 
 canvas.addEventListener('touchcancel', () => {
   isTouching = false;
+  // touchX 保持不变
 });
 
 // ─── 开始/重新开始 ────────────────────────────────────────
