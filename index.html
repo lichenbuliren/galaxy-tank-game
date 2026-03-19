@@ -126,7 +126,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260320-1 <span id="debug-info"></span></div>
+  <div id="version-display">v20260320-2 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -463,11 +463,14 @@ function update(dt) {
   // touchX/touchY 有值就驱动移动，不管 isTouching
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
-  if (touchX !== null && !isNaN(touchX) && !isNaN(player.x)) {
+  // Debug: 检查移动条件
+  const canMoveX = touchX !== null && !isNaN(touchX) && !isNaN(player.x);
+  const canMoveY = touchY !== null && !isNaN(touchY) && !isNaN(player.y);
+  if (canMoveX) {
     const diff = touchX - player.x;
     player.x += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
-  if (touchY !== null && !isNaN(touchY) && !isNaN(player.y)) {
+  if (canMoveY) {
     const diff = touchY - player.y;
     player.y += Math.sign(diff) * Math.min(Math.abs(diff), player.speed * (dt / 16));
   }
@@ -475,6 +478,9 @@ function update(dt) {
   if (isNaN(player.y) || player.y < 0 || player.y > screenH) player.y = screenH * PLAYER_Y_RATIO;
   player.x = Math.max(player.w/2, Math.min(screenW - player.w/2, player.x));
   player.y = Math.max(player.h/2, Math.min(screenH - player.h/2, player.y));
+  // Debug: 显示移动条件状态
+  document.getElementById('debug-info').textContent =
+    `px=${Math.round(player.x)} py=${Math.round(player.y)} tX=${touchX!=null?Math.round(touchX):'null'} tY=${touchY!=null?Math.round(touchY):'null'} canX=${canMoveX} canY=${canMoveY}`;
 
   // 自动射击
   playerShoot();
@@ -863,7 +869,6 @@ canvas.addEventListener('touchstart', e => {
   isTouching = true;
   touchX = rawX;
   touchY = rawY;
-  document.getElementById('debug-info').textContent = `TS px=${Math.round(player.x)} py=${Math.round(player.y)} tx=${Math.round(rawX)} ty=${Math.round(rawY)}`;
 }, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
@@ -873,7 +878,6 @@ canvas.addEventListener('touchmove', e => {
   const rawY = e.touches[0].clientY;
   touchX = rawX;
   touchY = rawY;
-  document.getElementById('debug-info').textContent = `TM px=${Math.round(player.x)} py=${Math.round(player.y)} tx=${Math.round(rawX)} ty=${Math.round(rawY)}`;
 }, { passive: false });
 
 function startGame() {
