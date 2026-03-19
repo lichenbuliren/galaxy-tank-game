@@ -60,11 +60,14 @@
   }
   #version-display {
     position: absolute;
-    bottom: env(safe-area-inset-bottom, 10px);
-    right: 10px;
-    color: rgba(255,255,255,0.3);
-    font: 10px 'Courier New', monospace;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255,255,255,0.8);
+    font: 16px 'Courier New', monospace;
+    text-align: center;
     pointer-events: none;
+    z-index: 100;
   }
   #start-screen, #gameover-screen {
     position: absolute;
@@ -122,7 +125,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-10 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-11 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
