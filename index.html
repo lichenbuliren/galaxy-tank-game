@@ -122,7 +122,7 @@
   <div id="score-display">SCORE: 0</div>
   <div id="lives-display">❤ × 3</div>
   <div id="buff-display">BUFF: </div>
-  <div id="version-display">v20260319-9 <span id="debug-info"></span></div>
+  <div id="version-display">v20260319-10 <span id="debug-info"></span></div>
 </div>
 <div id="start-screen">
   <div class="screen-title">🌌 GALAXY TANK 🌌</div>
@@ -843,17 +843,20 @@ canvas.addEventListener('mouseup', () => { isTouching = false; });
 canvas.addEventListener('mouseleave', () => { isTouching = false; });
 
 // 移动端触摸控制（不调用 preventDefault，依赖 CSS touch-action:none）
+// 全局调试：监听所有触摸事件
+window.addEventListener('touchstart', e => {
+  document.getElementById('debug-info').textContent = `TW! target=${e.target.tagName} gameState=${gameState}`;
+}, { passive: true });
+
 canvas.addEventListener('touchstart', e => {
-  // 调试：确认 touchstart 被触发
   const rawX = e.touches[0].clientX;
-  document.getElementById('debug-info').textContent = `TS! gameState=${gameState} clientX=${Math.round(rawX)} player.x=${Math.round(player.x)}`;
+  document.getElementById('debug-info').textContent = `TS! gameState=${gameState} clientX=${Math.round(rawX)} canvasSize=${W}x${H}`;
+  e.preventDefault();
   if (gameState !== 'playing') return;
   if (!e.touches || e.touches.length === 0) return;
   isTouching = true;
-  if (typeof rawX === 'number' && !isNaN(rawX) && rawX >= 0) {
-    touchX = rawX;
-  }
-});
+  touchX = rawX;
+}, { passive: false });
 
 canvas.addEventListener('touchmove', e => {
   if (!isTouching || gameState !== 'playing') return;
